@@ -16,11 +16,11 @@ def clean_hindi(text):
 
 def prepare_data():
     df = pd.read_csv(config.data_path)
-    df = df[['english_sentence', 'hindi_sentence']].dropna()
+    df = df[['english', 'hindi']].dropna()
     
     # Clean text
-    df['english'] = df['english_sentence'].apply(clean_text)
-    df['hindi'] = df['hindi_sentence'].apply(clean_hindi)
+    df['english'] = df['english'].apply(clean_text)
+    df['hindi'] = df['hindi'].apply(clean_hindi)
     
     # Add start/end tokens to Hindi
     df['hindi'] = df['hindi'].apply(lambda x: '<start> ' + x + ' <end>')
@@ -30,10 +30,14 @@ def prepare_data():
 def build_vocab(sentences, is_hindi=False):
     word_counts = Counter()
     for sentence in sentences:
-        word_counts.update(sentence.split())
+        # Skip empty sentences
+        if not sentence or pd.isna(sentence):
+            continue
+        words = sentence.split()
+        word_counts.update(words)
     
-    vocab = {word: idx+4 for idx, (word, count) in 
-             enumerate(word_counts.items()) if count >= config.min_word_count}
+    # Include all words regardless of frequency
+    vocab = {word: idx+4 for idx, word in enumerate(word_counts)}
     
     # Add special tokens
     vocab['<pad>'] = 0

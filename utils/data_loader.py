@@ -1,7 +1,9 @@
+import pickle
 import torch
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 from utils.preprocessing import prepare_data, build_vocab
+from utils.config import config
 
 class TranslationDataset(Dataset):
     def __init__(self, english_sentences, hindi_sentences, eng_vocab, hin_vocab):
@@ -9,6 +11,8 @@ class TranslationDataset(Dataset):
         self.hindi_sentences = hindi_sentences
         self.eng_vocab = eng_vocab
         self.hin_vocab = hin_vocab
+        self.eng_vocab_size = len(eng_vocab)
+        self.hin_vocab_size = len(hin_vocab)
         
     def __len__(self):
         return len(self.english_sentences)
@@ -21,6 +25,10 @@ class TranslationDataset(Dataset):
                   for word in eng_sentence.split()]
         hin_ids = [self.hin_vocab.get(word, self.hin_vocab['<unk>']) 
                   for word in hin_sentence.split()]
+        
+        # Clamp indices to vocabulary size
+        eng_ids = [min(idx, self.eng_vocab_size - 1) for idx in eng_ids]
+        hin_ids = [min(idx, self.hin_vocab_size - 1) for idx in hin_ids]
         
         return {
             'english': torch.tensor(eng_ids, dtype=torch.long),
@@ -67,5 +75,15 @@ def get_data_loaders():
         val_dataset, batch_size=config.batch_size, 
         shuffle=False, collate_fn=collate_fn
     )
+
+    # Save vocabularies for inference
+    with open('eng_vocab.pkl', 'wb') as f:
+        pickle.dump(eng_vocab, f)
+    with open('hin_vocab.pkl', 'wb') as f:
+        pickle.dump(hin_vocab, f)
+    print(f"English vocabulary size: {len(eng_vocab)}")
+    print(f"Hindi vocabulary size: {len(hin_vocab)}")
+    print(f"Max English index: {max(eng_vocab.values())}")
+    print(f"Max Hindi index: {max(hin_vocab.values())}")
     
     return train_loader, val_loader, eng_vocab, hin_vocab

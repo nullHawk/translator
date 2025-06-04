@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 from models.attention import Attention
 from utils.config import config
 
