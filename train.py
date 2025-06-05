@@ -17,6 +17,9 @@ def init_weights(m):
 
 def train():
     train_loader, val_loader, eng_vocab, hin_vocab = get_data_loaders()
+
+    print(f"Final English vocab size: {len(eng_vocab)}")
+    print(f"Final Hindi vocab size: {len(hin_vocab)}")
     
     # Model initialization
     enc = Encoder(

@@ -48,6 +48,11 @@ def collate_fn(batch):
 
 def get_data_loaders():
     df = prepare_data()
+    df['eng_len'] = df['english'].apply(lambda x: len(x.split()))
+    df['hin_len'] = df['hindi'].apply(lambda x: len(x.split()))
+    df = df[(df['eng_len'] <= config.max_length) & 
+            (df['hin_len'] <= config.max_length)]
+    
     eng_sentences = df['english'].tolist()
     hin_sentences = df['hindi'].tolist()
     
