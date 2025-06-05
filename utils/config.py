@@ -21,8 +21,8 @@ class Config:
     epochs = 20
     teacher_forcing_ratio = 0.5
 
-    max_vocab_english = 20000
-    max_vocab_hindi = 50000
+    max_vocab_english = 5000
+    max_vocab_hindi = 10000
     max_length = 20  # Maximum sentence length
     
     # Device
