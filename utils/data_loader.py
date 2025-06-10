@@ -48,6 +48,7 @@ def collate_fn(batch):
 
 def get_data_loaders():
     df = prepare_data()
+    df = df.sample(frac=0.1, random_state=42)
     df['eng_len'] = df['english'].apply(lambda x: len(x.split()))
     df['hin_len'] = df['hindi'].apply(lambda x: len(x.split()))
     df = df[(df['eng_len'] <= config.max_length) & 
